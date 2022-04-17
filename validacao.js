@@ -10,7 +10,8 @@ function valida(input){
 
 const validadores = {
     dataNascimento:input => validarDataNascimento(input),
-    cpf:input => validarCPF(input)
+    cpf:input => validarCPF(input),
+    cep:input => recuperarCEP(input)
 }
 
 
@@ -104,3 +105,45 @@ function confirmaDigito(soma){
     return 11 - (soma % 11)
 }
 
+
+function recuperarCEP(input){
+    const cep = input.value.replace(/\D/g, '')
+    const url = `https://viacep.com.br/ws/${cep}/json`
+    const options ={
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json;chaset=utf-8'
+        }
+    }
+
+    if(!input.validity.patternMismatch && !input.validity.valueMissing){
+        fetch(url, options).then(
+            reponse=> response.json()
+        ).then(
+            data=>{
+                if(data.erro){
+                input.setCustomValidity('Não encontramos o CEP digitado')
+                return 
+            }
+                        input.setCustomValidity('')    
+                           preencherCEP(data)
+                           return         
+                    }
+
+        
+            )
+
+    }
+}
+
+function preencherCEP(data){
+    const logradouro = document.querySelector('[data-tipo="logradouro"]')
+    const cidade =document.querySelector('[data-tipo="cidade"]')
+    const estado=document.querySelector('[data-tipo="estado"]')
+
+    logradouro.value=data.logradouro
+    cidade.value=data.localidade
+    estado.value=data.uf
+
+}
